@@ -1,27 +1,27 @@
-from typing import NamedTuple
+from typing import (
+    NamedTuple,
+    Optional,
+)
 
 
 class VersionNote(NamedTuple):
-    major: str = None
-    minor: str = None
-    patch: str = None
-    url: str = None
-    prerelease: str = None
-    separator: str = None
-    date: str = None
-    text_raw: str = None
+    major: Optional[str] = None
+    minor: Optional[str] = None
+    patch: Optional[str] = None
+    url: Optional[str] = None
+    prerelease: Optional[str] = None
+    separator: Optional[str] = None
+    date: Optional[str] = None
+    text_raw: Optional[str] = None
 
     @property
-    def text(self) -> str:
+    def text(self) -> Optional[str]:
         """Remove many \n at the start and end of the string."""
-        return self.text_raw.strip()
+        return self.text_raw.strip() if self.text_raw else None
 
     @property
     def is_prerelease(self) -> bool:
-        if self.prerelease and len(self.prerelease):
-            return True
-        else:
-            return False
+        return bool(self.prerelease)
 
     @property
     def version(self) -> str:

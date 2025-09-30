@@ -11,7 +11,6 @@ import tarfile
 import xmlrpc.client
 import zipfile
 
-from glob import glob
 from importlib import resources
 from pathlib import Path
 from tempfile import mkstemp
@@ -28,7 +27,6 @@ from github import Github, GithubException
 
 from qgispluginci.changelog import ChangelogParser
 from qgispluginci.exceptions import (
-    BuiltResourceInSources,
     GithubReleaseCouldNotUploadAsset,
     GithubReleaseNotFound,
     UncommitedChanges,
@@ -56,7 +54,6 @@ def create_archive(
     allow_uncommitted_changes: bool = False,
     is_prerelease: bool = False,
     raise_min_version: Optional[str] = None,
-    disable_submodule_update: bool = False,
     asset_paths: Sequence[str] = (),
     no_diff_check: bool = False,
 ):
@@ -67,10 +64,10 @@ def create_archive(
     initial_stash = None
     if not no_diff_check:
         # keep track of current state
-        diff = repo.index.diff(None)
-        if diff:
+        diffs = repo.index.diff(None)
+        if diffs:
             logger.info("There are uncommitted changes:")
-            for diff in diff:
+            for diff in diffs:
                 logger.info(diff)
             if not allow_uncommitted_changes:
                 err_msg = (
@@ -170,27 +167,6 @@ def create_archive(
     # create TAR archive
     logger.debug(f"Git archive plugin with stash: {stash}")
     repo.git.archive(stash, "-o", top_tar_file, parameters.plugin_path)
-    # adding submodules
-    for submodule in repo.submodules:
-        _, sub_tar_file = mkstemp(suffix=".tar")
-        if submodule.path.split("/")[0] != parameters.plugin_path:
-            logger.debug(
-                f"Skipping submodule not in plugin source directory: {submodule.name}"
-            )
-            continue
-        if not disable_submodule_update:
-            submodule.update(init=True)
-        sub_repo = submodule.module()
-        logger.info("Git archive submodule: {sub_repo}")
-        sub_repo.git.archive(
-            "HEAD", "--prefix", f"{submodule.path}/", "-o", sub_tar_file
-        )
-        with tarfile.open(top_tar_file, mode="a") as tt:
-            with tarfile.open(sub_tar_file, mode="r:") as st:
-                for m in st.getmembers():
-                    if not m.isfile():
-                        continue
-                    tt.add(m.name)
 
     # add LICENSE if not already in plugin path but available in its parent
     parent_folder_license_copied = False
@@ -404,7 +380,7 @@ def create_plugin_repo(
         xml_repo = "./plugins.xml"
     replace_dict["__DOWNLOAD_URL__"] = download_url
     with resources.path("qgispluginci", "plugins.xml.template") as xml_template:
-        configure_file(xml_template, xml_repo, replace_dict)
+        configure_file(xml_template, Path(xml_repo), replace_dict)
     return xml_repo
 
 
@@ -484,7 +460,6 @@ def release(
     osgeo_password: Optional[str] = None,
     allow_uncommitted_changes: bool = False,
     plugin_repo_url: Optional[str] = None,
-    disable_submodule_update: bool = False,
     asset_paths: Sequence[str] = (),
     dry_run: bool = False,
     no_diff_check: bool = False,
@@ -517,8 +492,6 @@ def release(
     allow_uncommitted_changes
         If False, uncommitted changes are not allowed before packaging/releasing.
         If True and some changes are detected, a hard reset on a stash create will be used to revert changes made by qgis-plugin-ci.
-    disable_submodule_update
-        If omitted, a git submodule is updated. If specified, git submodules will not be updated/initialized before packaging.
     """
     plugin_path = parameters.plugin_path
     if not plugin_path:
@@ -530,9 +503,9 @@ def release(
             changelog_path=parameters.changelog_path,
         )
         if parser.has_changelog():
-            release_version = parser.latest_version()
-        else:
-            release_version = "latest"
+            latest_version = parser.latest_version()
+            if latest_version:
+                release_version = latest_version
 
     if tx_api_token:
         tr = Translation(parameters, create_project=False, tx_api_token=tx_api_token)
@@ -559,7 +532,6 @@ def release(
         archive_name,
         allow_uncommitted_changes=allow_uncommitted_changes,
         is_prerelease=is_prerelease,
-        disable_submodule_update=disable_submodule_update,
         asset_paths=asset_paths,
         no_diff_check=no_diff_check,
     )

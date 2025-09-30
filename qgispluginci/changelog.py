@@ -1,43 +1,33 @@
-#! python3
-
 """
 Changelog parser. Following <https://keepachangelog.com/en/1.0.0/>.
 """
-
-# ############################################################################
-# ########## Libraries #############
-# ##################################
 
 # standard library
 import logging
 import re
 import sys
 
+from itertools import chain
 from pathlib import Path
-from typing import Union
+from typing import (
+    Iterable,
+    Optional,
+    Union,
+)
 
 from qgispluginci.version_note import VersionNote
-
-# ############################################################################
-# ########## Globals #############
-# ################################
 
 # see: https://regex101.com/r/8JROUv/1
 CHANGELOG_REGEXP = r"(?<=##)\s*\[*(v?0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\]?(\(.*\))?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]*\s-\s*([\d\-/]{10})(.*?)(?=##|\Z)"
 logger = logging.getLogger(__name__)
 
-# ############################################################################
-# ########## Classes #############
-# ################################
-
 
 class ChangelogParser:
-    CHANGELOG_FILEPATH: Union[Path, None] = None
 
     @classmethod
     def has_changelog(
         cls, parent_folder: Union[Path, str] = Path("."), changelog_path="CHANGELOG.md"
-    ) -> bool:
+    ) -> Optional[Path]:
         """Check if a changelog file exists within the parent folder. If it does, \
         it returns True and the file path is stored as class attribute. If not, it \
         returns False and the class attribute is reset to None.
@@ -55,9 +45,6 @@ class ChangelogParser:
         Returns:
             bool: True if a CHANGELOG.md exists within the parent_folder
         """
-        # reset stored path as class attribute
-        cls.CHANGELOG_FILEPATH = None
-
         # ensure using pathlib.Path
         if isinstance(parent_folder, str):
             parent_folder = Path(parent_folder)
@@ -77,29 +64,32 @@ class ChangelogParser:
             sys.exit(1)
 
         # build, check and store the changelog path
-        cls.CHANGELOG_FILEPATH = parent_folder / changelog_path
-        if cls.CHANGELOG_FILEPATH.is_file():
-            logger.info(f"Changelog file used: {cls.CHANGELOG_FILEPATH.resolve()}")
-            return True
+        changelog_filepath = parent_folder.joinpath(changelog_path)
+        if changelog_filepath.is_file():
+            logger.info(f"Changelog file used: {changelog_filepath.resolve()}")
+            return changelog_filepath
         else:
             logger.warning(
-                f"Changelog file doesn't exist: {cls.CHANGELOG_FILEPATH.resolve()}"
+                f"Changelog file doesn't exist: {changelog_filepath.resolve()}"
             )
-            cls.CHANGELOG_FILEPATH = None
-            return False
+
+            return None
 
     def __init__(
         self,
-        parent_folder: Union[Path, str] = Path("."),
+        parent_folder: Optional[Path | str] = None,
         changelog_path: str = "CHANGELOG.md",
     ):
-        self.has_changelog(parent_folder=parent_folder, changelog_path=changelog_path)
+        self.changelog_path = self.has_changelog(
+            parent_folder=parent_folder if parent_folder else Path("."),
+            changelog_path=changelog_path,
+        )
 
-    def _parse(self):
-        if not self.CHANGELOG_FILEPATH:
-            return None
+    def _parse(self) -> Iterable[re.Match]:
+        if not self.changelog_path:
+            return ()
 
-        with self.CHANGELOG_FILEPATH.open(mode="r", encoding="UTF8") as f:
+        with self.changelog_path.open(mode="r", encoding="UTF8") as f:
             content = f.read()
 
         return re.findall(
@@ -119,44 +109,44 @@ class ChangelogParser:
         if not changelog_content:
             return ""
 
-        count = int(count)
         output = "\n"
+        so_far = 0
 
-        for version in changelog_content[0:count]:
+        for version in changelog_content:
             version_note = VersionNote(*version)
             output += f" Version {version_note.version}:\n"
-            for item in version_note.text.split("\n"):
-                if item:
-                    output += f" {item}\n"
+            if version_note.text:
+                output += "\n".join(item for item in version_note.text.split("\n") if item)
             output += "\n"
+            so_far += 1
+            if so_far >= count:
+                break
+
         return output
 
-    def _version_note(self, tag: str) -> Union[VersionNote, None]:
+    def _version_note(self, tag: str) -> Optional[VersionNote]:
         """Get the tuple for a given version."""
         changelog_content = self._parse()
-        if not len(changelog_content):
-            logger.error(
-                f"Parsing the changelog ({self.CHANGELOG_FILEPATH.resolve()}) "
-                "returned an empty content."
-            )
+
+        latest = next(iter(changelog_content), None)
+        if not latest:
+            logger.error("Parsing the changelog returned an empty content.")
             return None
 
         if tag == "latest":
-            return VersionNote(*changelog_content[0])
+            return VersionNote(*latest)
 
-        for version in changelog_content:
+        for version in chain((latest,), changelog_content):
             version_note = VersionNote(*version)
             if version_note.version == tag:
                 return version_note
 
-    def latest_version(self) -> str:
+        return None
+
+    def latest_version(self) -> Optional[str]:
         """Return the latest tag described in the changelog file."""
         latest = self._version_note("latest")
-        logger.debug(
-            "Latest version retrieved from changelog "
-            f"({self.CHANGELOG_FILEPATH.resolve()}): {latest.version}"
-        )
-        return latest.version
+        return latest.version if latest else None
 
     def content(self, tag: str) -> Union[str, None]:
         """Get a version content to add in a release according to the version name."""

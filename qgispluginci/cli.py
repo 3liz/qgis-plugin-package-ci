@@ -67,12 +67,6 @@ def cli():
         "detected, a hard reset on a stash create will be used to revert changes made by qgis-plugin-ci.",
     )
     package_parser.add_argument(
-        "-d",
-        "--disable-submodule-update",
-        action="store_true",
-        help="If omitted, a git submodule is updated. If specified, git submodules will not be updated/initialized before packaging.",
-    )
-    package_parser.add_argument(
         "-a",
         "--asset-path",
         action="append",
@@ -126,12 +120,6 @@ def cli():
         action="store_true",
         help="If omitted, uncommitted changes are not allowed before releasing. If specified and some changes are "
         "detected, a hard reset on a stash create will be used to revert changes made by qgis-plugin-ci.",
-    )
-    release_parser.add_argument(
-        "-d",
-        "--disable-submodule-update",
-        action="store_true",
-        help="If omitted, a git submodule is updated. If specified, git submodules will not be updated/initialized before packaging.",
     )
     release_parser.add_argument(
         "-a",
@@ -228,7 +216,6 @@ def cli():
             tx_api_token=args.transifex_token,
             allow_uncommitted_changes=args.allow_uncommitted_changes,
             plugin_repo_url=args.plugin_repo_url,
-            disable_submodule_update=args.disable_submodule_update,
             asset_paths=args.asset_path,
             no_diff_check=args.no_diff_check,
         )
@@ -246,7 +233,6 @@ def cli():
             osgeo_username=args.osgeo_username,
             osgeo_password=args.osgeo_password,
             allow_uncommitted_changes=args.allow_uncommitted_changes,
-            disable_submodule_update=args.disable_submodule_update,
             asset_paths=args.asset_path,
             dry_run=args.dry_run,
             no_diff_check=args.no_diff_check,

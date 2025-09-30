@@ -1,12 +1,6 @@
-#! python3
-
 """
 Parameters management.
 """
-
-# ############################################################################
-# ########## Libraries #############
-# ##################################
 
 import configparser
 import datetime
@@ -14,6 +8,7 @@ import logging
 import os
 import re
 import sys
+import tomllib
 
 
 # standard library
@@ -21,12 +16,6 @@ from argparse import Namespace
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Callable, Optional
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
-
 
 import yaml
 
@@ -36,19 +25,9 @@ from slugify import slugify
 
 from qgispluginci.exceptions import ConfigurationNotFound
 
-# ############################################################################
-# ########## Globals #############
-# ################################
-
-
 DASH_WARNING = "Dash in the plugin name is causing issues with QGIS plugin manager"
 
 logger = logging.getLogger(__name__)
-
-
-# ############################################################################
-# ########## Classes #############
-# ################################
 
 
 class Parameters:
@@ -194,7 +173,7 @@ class Parameters:
             return
 
         get_metadata = self.collect_metadata()
-        self.plugin_name = get_metadata("name")
+        self.plugin_name = get_metadata("name", None)
         self.plugin_slug = slugify(self.plugin_name, separator="_")
 
         # fix directory in zip file
@@ -253,13 +232,13 @@ class Parameters:
 
         # read from metadata
         self.author = get_metadata("author", "")
-        self.description = get_metadata("description")
-        self.qgis_minimum_version = get_metadata("qgisMinimumVersion")
+        self.description = get_metadata("description", None)
+        self.qgis_minimum_version = get_metadata("qgisMinimumVersion", None)
         self.icon = get_metadata("icon", "")
         self.tags = get_metadata("tags", "")
         self.experimental = get_metadata("experimental", False)
         self.deprecated = get_metadata("deprecated", False)
-        self.issue_tracker = get_metadata("tracker")
+        self.issue_tracker = get_metadata("tracker", None)
         self.homepage = get_metadata("homepage", "")
         if self.homepage == "":
             logger.warning(
@@ -267,7 +246,7 @@ class Parameters:
                 "It is a mandatory information to publish "
                 "the plugin on the QGIS official repository."
             )
-        self.repository_url = get_metadata("repository")
+        self.repository_url = get_metadata("repository", None)
 
         # check if slugs have not trailing slash
         if any(
@@ -285,7 +264,7 @@ class Parameters:
             )
 
     @staticmethod
-    def get_release_version_patterns() -> dict[str, re.Pattern]:
+    def get_release_version_patterns() -> dict[str, str]:
         return {
             "simple": r"\d+\.\d+$",
             "double": r"\d+\.\d+\.\d+$",
@@ -360,7 +339,7 @@ class Parameters:
                 if len(split) == 2:
                     metadata[split[0]] = split[1]
 
-        def get_metadata(key: str, default_value: Optional[Any] = None) -> Any:
+        def get_metadata(key: str, default_value: Optional[Any]) -> Any:
             if not self.plugin_path:
                 return ""
 

@@ -19,7 +19,7 @@ pyjwt==2.10.1
 pynacl==1.6.0
 pyseeyou==1.0.2
 python-slugify==8.0.4
-pyyaml==6.0.2
+pyyaml==6.0.3
 regex==2025.9.18
 requests==2.32.5
 six==1.17.0

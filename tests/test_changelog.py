@@ -19,11 +19,6 @@ from pathlib import Path
 from qgispluginci.changelog import ChangelogParser
 from qgispluginci.version_note import VersionNote
 
-# ############################################################################
-# ########## Classes #############
-# ################################
-
-
 case = unittest.TestCase()
 
 
@@ -31,19 +26,12 @@ def test_has_changelog(fixtures: Path):
     """Test changelog path logic."""
 
     # using the fixture subfolder as string
-    case.assertTrue(ChangelogParser.has_changelog(parent_folder=fixtures))
-    case.assertIsInstance(ChangelogParser.CHANGELOG_FILEPATH, Path)
-
-    # using the fixture subfolder as pathlib.Path
-    case.assertTrue(
-        ChangelogParser.has_changelog(parent_folder=fixtures)
-    )
-    case.assertIsInstance(ChangelogParser.CHANGELOG_FILEPATH, Path)
+    changelog_filepath = ChangelogParser.has_changelog(parent_folder=fixtures)
+    case.assertIsInstance(changelog_filepath, Path)
 
     # with a path to a file, must raise a type error
     with case.assertRaises(SystemExit):
         ChangelogParser.has_changelog(parent_folder=Path(__file__))
-    case.assertIsNone(ChangelogParser.CHANGELOG_FILEPATH, None)
 
     # with a path to a folder which doesn't exist, must raise a file exists error
     with case.assertRaises(SystemExit):
@@ -54,7 +42,7 @@ def test_changelog_content(fixtures: Path):
     """Test version content from changelog."""
     # parser
     parser = ChangelogParser(parent_folder=fixtures)
-    case.assertIsInstance(parser.CHANGELOG_FILEPATH, Path)
+    case.assertIsInstance(parser.changelog_path, Path)
 
     # Unreleased doesn't count
     case.assertEqual(7, len(parser._parse()))
@@ -158,7 +146,7 @@ def test_changelog_version_note(fixtures: Path):
     """Test version note named tuple structure and mechanisms."""
     # parser
     parser = ChangelogParser(parent_folder=fixtures)
-    case.assertIsInstance(parser.CHANGELOG_FILEPATH, Path)
+    case.assertIsInstance(parser.changelog_path, Path)
 
     # content parsed
     changelog_content = parser._parse()

@@ -1,7 +1,9 @@
-from typing import NamedTuple
+from dataclasses import dataclass
+from typing import Optional
 
 
-class TranslationConfig(NamedTuple):
+@dataclass
+class TranslationConfig:
     api_token: str
     organization_name: str
     project_slug: str
@@ -9,15 +11,18 @@ class TranslationConfig(NamedTuple):
     resource_slug: str
 
     private: bool = False
-    project_name: str = None
+    project_name: Optional[str] = None
     i18n_type: str = "QT"
-    repository_url: str = None
+    repository_url: Optional[str] = None
     source_language_code: str = "en"
 
 
 class BaseClient:
     def __init__(
-        self, config: TranslationConfig, update_string_fcn, create_project: bool = True
+        self,
+        config: TranslationConfig,
+        update_string_fcn,
+        create_project: bool = True,
     ):
         """
         Parameters

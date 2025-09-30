@@ -66,15 +66,8 @@ lint = [
     "ruff",
     "mypy",
     "bandit",
-]
-doc = [
-    "furo>=2024",
-    "myst-parser[linkify]>=4",
-    "sphinx-autobuild>=2024",
-    "sphinx-copybutton>=0.5",
-    "sphinx-design>=0.6.0",
-    "sphinx-sitemap>=2.4",
-    "tomli >= 2.2; python_full_version < '3.11'",
+    "types-PyYAML",
+    "types-requests",
 ]
 
 [tool.uv.build-backend]
@@ -89,7 +82,7 @@ module-root = ""
 
 [tool.ruff]
 line-length = 110
-target-version = "py39"
+target-version = "py312"
 exclude = [
     ".venv",
     ".local",
@@ -143,8 +136,12 @@ suppress-dummy-args = true
 # Mypy
 #
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.12"
 
 [[tool.mypy.overrides]]
 module = "qgis.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "transifex.*"
 ignore_missing_imports = true
