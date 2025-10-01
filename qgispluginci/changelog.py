@@ -116,8 +116,9 @@ class ChangelogParser:
             version_note = VersionNote(*version)
             output += f" Version {version_note.version}:\n"
             if version_note.text:
-                output += "\n".join(item for item in version_note.text.split("\n") if item)
-            output += "\n"
+                output += " "
+                output += "\n ".join(item for item in version_note.text.split("\n") if item)
+            output += "\n\n"
             so_far += 1
             if so_far >= count:
                 break
@@ -155,10 +156,3 @@ class ChangelogParser:
             return None
 
         return version_note.text
-
-
-# ############################################################################
-# ####### Stand-alone run ########
-# ################################
-if __name__ == "__main__":
-    pass
