@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<plugins>
+    <pyqgis_plugin name="$PLUGIN_NAME" version="$RELEASE_VERSION">
+        <description><![CDATA[$DESCRIPTION]]></description>
+        <version>$RELEASE_VERSION</version>
+        <qgis_minimum_version>$QGIS_MIN_VERSION</qgis_minimum_version>
+        <qgis_maximum_version>$QGIS_MAX_VERSION</qgis_maximum_version>
+        <homepage>$HOMEPAGE</homepage>
+        <file_name>$PLUGINZIP</file_name>
+        <icon>$ICON</icon>
+        <author_name>$AUTHOR</author_name>
+        <download_url>$DOWNLOAD_URL</download_url>
+        <uploaded_by>$OSGEO_USERNAME</uploaded_by>
+        <create_date>$CREATE_DATE</create_date>
+        <update_date>$RELEASE_DATE</update_date>
+        <experimental>$EXPERIMENTAL</experimental>
+        <deprecated>$DEPRECATED</deprecated>
+        <tracker>$ISSUE_TRACKER</tracker>
+        <repository>$REPO_URL</repository>
+        <tags>$TAGS</tags>
+    </pyqgis_plugin>
+</plugins>

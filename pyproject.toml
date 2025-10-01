@@ -4,14 +4,14 @@ build-backend = "uv_build"
 
 [project]
 name = "qgis-plugin-package-ci"
-version = "3.0.0a0"
+version = "0.1.0a1"
 authors = [
     {name = "Denis Rouzaud", email = "denis@opengis.ch"},
     {name = "Etienne Trimaille", email = "etienne.trimaille@gmail.com"},
     {name = "Julien Moura", email = "dev@ingeoveritas.com"},
     {name = "David Marteau", email = "david.marteau@3liz.com"},
 ]
-description = "Let qgis-plugin-ci package and release your QGIS plugins for you. Have a tea or go hiking meanwhile. Contains scripts to perform automated testing and deployment for QGIS plugins. These scripts are written for and tested on GitHub Actions, GitLab CI, Travis-CI, and Transifex."
+description = "Package and release QGIS plugins "
 requires-python = ">=3.12"
 keywords = ["QGIS", "CI", "changelog", "plugin"]
 license = {text = "GPLv3"}
@@ -23,39 +23,36 @@ classifiers = [
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: Implementation :: CPython",
         "Topic :: Scientific/Engineering :: GIS",
 ]
 dependencies = [
-    "GitPython>=3.1,<3.2",
-    "PyGithub>=2,<2.7",
-    "python-slugify>=4.0,<8.1",
-    "pyyaml>=5.4,<6.1",
-    "six>=1.16.0",
-    "tomli >= 2.2; python_full_version < '3.11'",
-    "transifex-python>=3.2,<4.0",
+    "click",
+    "pydantic",
+    "semver>=3.0.4,<4.0",
+    "GitPython>=3.1,<4.0",
+    "PyGithub",
+    "python-slugify[unidecode]>=8.0,<9.0",
 ]
 
 [project.scripts]
-qgis-plugin-ci = "qgispluginci.cli:cli"
+qgis-plugin-ci = "qgis_plugin_package_ci.__main__:main"
 
 [project.urls]
-homepage = "https://opengisch.github.io/qgis-plugin-ci/"
-documentation = "https://opengisch.github.io/qgis-plugin-ci/"
-repository = "https://github.com/opengisch/qgis-plugin-ci/"
-tracker = "https://github.com/opengisch/qgis-plugin-ci/issues"
+homepage = "https://github.com/3liz/qgis-plugin-package-ci"
+documentation = "https://github.com/3liz/qgis-plugin-package-ci"
+repository = "https://github.com/3liz/qgis-plugin-package-ci"
+tracker = "https://github.com/3liz/qgis-plugin-package-ci"
 
 
-#[project.optional-dependencies]
-#transifex = ["transifex-python>=3.2,<4.0"]
+[project.optional-dependencies]
+transifex = ["transifex-python>=3.2,<4.0", "six"]
 
 [dependency-groups]
 dev = [
+    "coverage[toml]",
     {include-group = "tests"},
     {include-group = "lint" },
 ]
@@ -71,7 +68,7 @@ lint = [
 ]
 
 [tool.uv.build-backend]
-module-name = ["qgispluginci"]
+module-name = ["qgis_plugin_package_ci"]
 module-root = ""
 
 #
@@ -86,6 +83,7 @@ target-version = "py312"
 exclude = [
     ".venv",
     ".local",
+    "tests/fixtures",
 ]
 
 [tool.ruff.format]
@@ -137,11 +135,28 @@ suppress-dummy-args = true
 #
 [tool.mypy]
 python_version = "3.12"
+exclude = [
+    "^tests/fixtures/*$",
+]
 
 [[tool.mypy.overrides]]
-module = "qgis.*"
+module = [
+    "qgis.*"
+]
 ignore_missing_imports = true
 
-[[tool.mypy.overrides]]
-module = "transifex.*"
-ignore_missing_imports = true
+
+#
+# Coverage
+#
+[tool.coverage.run]
+source = ["qgis_plugin_package_ci"]
+branch = true
+relative_files = true
+
+[tool.coverage.report]
+precision = 2
+exclude_lines = [
+    "if TYPE_CHECKING",
+    '\(Protocol\):$',
+]

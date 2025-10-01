@@ -1,6 +1,6 @@
 SHELL:=bash
 
-PYTHON_MODULE=qgispluginci
+PYTHON_MODULE=qgis_plugin_package_ci
 
 -include .localconfig.mk
 
@@ -46,16 +46,18 @@ update-requirements-%: uv.lock
 # Static analysis
 #
 
-LINT_TARGETS=$(PYTHON_MODULE) $(EXTRA_LINT_TARGETS)
+LINT_TARGETS=$(PYTHON_MODULE) tests $(EXTRA_LINT_TARGETS)
 
-lint:
+lint::
 	@ $(UV_RUN) ruff check --preview  --output-format=concise $(LINT_TARGETS)
+
+lint:: typecheck
 
 lint-fix:
 	@ $(UV_RUN) ruff check --preview --fix $(LINT_TARGETS)
 
 format:
-	@ $(UV_RUN) format $(LINT_TARGETS) 
+	@ $(UV_RUN) ruff format $(LINT_TARGETS) 
 
 typecheck:
 	@ $(UV_RUN) mypy $(LINT_TARGETS)
@@ -76,6 +78,18 @@ check-uv-install:
 
 test:
 	$(UV_RUN) pytest -v tests/
+
+#
+# Coverage
+#
+
+# Run tests coverage
+covtest:
+	@ $(UV_RUN) coverage run -m pytest tests/
+
+coverage: covtest
+	@echo "Building coverage html"
+	@ $(UV_RUN) coverage html
 
 #
 # Build package

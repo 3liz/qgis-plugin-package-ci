@@ -5,16 +5,16 @@ qgisMinimumVersion=3.2
 description=This is a testing plugin for QGIS Plugin CI
 about=Downloading would be useless
 version=dev
-author=Denis Rouzaud
-email=denis@opengis.ch
+author=David Marteau
+email=david@3liz.com
 changelog=changelog
 
 # Tags are comma separated with spaces allowed
-tags=
+tags=foo,bar,baz
 
-tracker=https://github.com/opengisch/qgis-plugin-ci/issues
-homepage=https://github.com/opengisch/qgis-plugin-ci
-repository=https://github.com/opengisch/qgis-plugin-ci
+tracker=https://github.com/3liz/qgis-plugin-package-ci/issues
+homepage=https://github.com/3liz/qgis-plugin-package-ci
+repository=https://github.com/3liz/qgis-plugin-package-ci
 
 category=plugins
 
@@ -23,6 +23,3 @@ experimental=True
 
 # change icon...
 icon=icons/opengisch.png
-
-[tool:qgis-plugin-ci]
-commitNumber=

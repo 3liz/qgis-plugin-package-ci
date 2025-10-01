@@ -1,0 +1,6 @@
+[package-ci]
+plugin_path = "plugin_ci_testing"
+github_organization_slug = "3liz"
+project_slug = "qgis-plugin-package-ci"
+create_date = "1985-07-21"
+repository_url = "https://github.com/3liz/qgis-plugin-package-ci/"

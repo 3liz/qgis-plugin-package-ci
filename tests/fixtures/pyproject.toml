@@ -1,4 +1,5 @@
-[tool.qgis-plugin-ci]
-plugin_path = "qgis_plugin_CI_testing"
-github_organization_slug = "opengisch"
+[tool.package-ci]
+plugin_source = "plugin_ci_testing"
+github_organization_slug = "3liz"
 project_slug = "qgis_plugin_ci_testing"
+create_date = "1985-07-21"
