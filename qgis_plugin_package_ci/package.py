@@ -48,6 +48,7 @@ def create_archive(
 
         # Prepare plugin metadata
         config = ConfigParser()
+        config.optionxform = str  # type: ignore [assignment]
         config.read(metadata)
 
         date_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -73,6 +74,8 @@ def create_archive(
         # Replace metadata file
         with metadata.open("w") as fh:
             config.write(fh)
+
+        logger.debug("Written %s: \n%s", metadata, metadata.read_text())
 
         # Create the pagkage
         logger.info("Creating archive")

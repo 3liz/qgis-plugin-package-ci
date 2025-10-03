@@ -9,6 +9,7 @@ from qgis_plugin_package_ci.main import cli
 # XXX Click and log-cli-level option raise error:
 # See https://github.com/pallets/click/issues/824
 
+
 def test_cli_release(fixtures: Path):
     with chdir(fixtures):
         runner = CliRunner()
@@ -26,7 +27,7 @@ def test_cli_release(fixtures: Path):
         )
 
         print("\n::test_cli_release::", result.output)
-        
+
         assert result.exit_code == 0
 
 
@@ -43,7 +44,7 @@ def test_cli_package(fixtures: Path):
                 "--dry-run",
             ],
         )
-        
+
         print("\n::test_cli_package::", result.output)
 
         assert result.exit_code == 0
@@ -60,13 +61,13 @@ def test_cli_changelog(fixtures: Path):
                 "latest",
             ],
         )
-    
+
         expected = """
 - This is the latest documented version in this changelog
 - The changelog module is tested against these lines
 - Be careful modifying this file
 """
         print("\n::test_cli_changelog::", result.output)
-        
+
         assert result.exit_code == 0
         assert result.stdout == expected.lstrip("\n")
