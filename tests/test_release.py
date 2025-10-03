@@ -3,7 +3,10 @@ import datetime
 from pathlib import Path
 
 from qgis_plugin_package_ci.parameters import load_parameters
-from qgis_plugin_package_ci.release import release
+from qgis_plugin_package_ci.release import (
+    create_release_package,
+    upload_github_release,
+)
 
 
 def test_release_package(fixtures: Path, rootdir: Path):
@@ -22,15 +25,18 @@ def test_release_package(fixtures: Path, rootdir: Path):
 
     assert not repo_xml.exists()
 
-    archive = release(
-        parameters,
-        release_version=None,  # Get the latest
-        create_plugin_repository=True,
-        repository_url=repository_url,
-    )
+    archive, version = create_release_package(parameters, None)
 
     print("::test_release_package::archive", archive)
     assert archive == expected_archive
+
+    upload_github_release(
+        parameters,
+        version,
+        archive,
+        create_plugin_repository=True,
+        repository_url=repository_url,
+    )
 
     # Check for repo xml
     assert repo_xml.exists()

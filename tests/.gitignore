@@ -1,2 +1,3 @@
 __test_*
 fixtures/plugins.xml
+fixtures/*.zip

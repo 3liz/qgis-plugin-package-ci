@@ -62,17 +62,16 @@ def make_changelog(release_version: str):
 @cli.command("package")
 @click.argument("release-version")
 @click.option("--plugin-repo-url", "repository_url", help="Plugin repository URL")
-def make_package(release_version: str, repository_url: Optional[str]):
+@click.option("--dry-run", is_flag=True, help="Do not upload")
+def make_package(release_version: str, repository_url: Optional[str], dry_run: bool):
     """Create plugin archive"""
     from .parameters import load_parameters
-    from .release import release
+    from .release import create_release_package, upload_github_release
 
     parameters = load_parameters()
-    plugin_archive = release(
+    plugin_archive, version = create_release_package(
         parameters,
-        release_version=validate_version(release_version),
-        create_plugin_repository=repository_url is not None,
-        repository_url=repository_url,
+        validate_version(release_version),
     )
     click.echo(
         click.style(
@@ -80,6 +79,16 @@ def make_package(release_version: str, repository_url: Optional[str]):
             fg="green",
         ),
     )
+
+    if repository_url is not None:
+        upload_github_release(
+            parameters,
+            version,
+            plugin_archive,
+            create_plugin_repository=True,
+            repository_url=repository_url,
+            dry_run=dry_run,
+        )
 
 
 #
@@ -117,28 +126,33 @@ def make_release(
     The tag ref is required for uploading assets to the github release
     """
     from .parameters import load_parameters
-    from .release import release
+    from .release import create_release_package, upload_github_release
     from .upload import upload_plugin
 
     parameters = load_parameters()
-
-    create_plugin_repository = create_plugin_repo or repository_url is not None
-
-    plugin_archive = release(
+    plugin_archive, version = create_release_package(
         parameters,
-        release_version=validate_version(release_version),
-        github_token=github_token,
-        tag_ref=git_tag,
-        osgeo_username=osgeo_username,
-        create_plugin_repository=create_plugin_repository,
-        repository_url=repository_url,
-        dry_run=dry_run,
+        validate_version(release_version),
     )
     click.echo(
         click.style(
             (f"Plugin archive created: {plugin_archive.name} ({hsize(plugin_archive.stat().st_size)})"),
             fg="green",
         ),
+    )
+
+    create_plugin_repository = create_plugin_repo or repository_url is not None
+
+    upload_github_release(
+        parameters,
+        version,
+        plugin_archive,
+        github_token=github_token,
+        tag_ref=git_tag,
+        osgeo_username=osgeo_username,
+        create_plugin_repository=create_plugin_repository,
+        repository_url=repository_url,
+        dry_run=dry_run,
     )
 
     if osgeo_username and osgeo_password:
