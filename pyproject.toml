@@ -46,10 +46,6 @@ documentation = "https://github.com/3liz/qgis-plugin-package-ci"
 repository = "https://github.com/3liz/qgis-plugin-package-ci"
 tracker = "https://github.com/3liz/qgis-plugin-package-ci"
 
-
-[project.optional-dependencies]
-transifex = ["transifex-python>=3.2,<4.0", "six"]
-
 [dependency-groups]
 dev = [
     "coverage[toml]",
