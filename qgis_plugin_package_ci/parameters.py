@@ -38,8 +38,8 @@ class PluginMetadata(BaseModel):
     name: str
     author: str = ""
     description: str = ""
-    qgis_minimum_version: str = Field(alias="qgisminimumversion")
-    qgis_maximum_version: Optional[str] = Field(None, alias="qgismaximumversion")
+    qgis_minimum_version: str = Field(alias="qgisMinimumVersion")
+    qgis_maximum_version: Optional[str] = Field(None, alias="qgisMaximumVersion")
     icon: Optional[Path] = None
     tags: Annotated[
         Sequence[str],
@@ -56,6 +56,7 @@ class PluginMetadata(BaseModel):
     def read(cls, path: Path) -> Self:
         """Read plugin metadata"""
         config = ConfigParser()
+        config.optionxform = str  # type: ignore [assignment]
         config.read(path.joinpath("metadata.txt"))
         return cls.model_validate({k: v for (k, v) in config["general"].items()})
 

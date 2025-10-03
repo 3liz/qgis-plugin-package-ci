@@ -1,4 +1,6 @@
+from datetime import datetime, timezone
 from pathlib import Path
+from zipfile import ZipFile
 
 import git
 import semver
@@ -32,9 +34,11 @@ def test_package_create(rootdir: Path, fixtures: Path):
     if expected_pkg.exists():
         expected_pkg.unlink()
 
+    release_version = semver.Version.parse("1.2.3")
+
     pkg = create_archive(
         parameters,
-        release_version=semver.Version.parse("1.2.3"),
+        release_version=release_version,
         archive_dest=rootdir,
         archive_name="__test_package_create__",
     )
@@ -42,4 +46,34 @@ def test_package_create(rootdir: Path, fixtures: Path):
     assert pkg == expected_pkg
     assert pkg.exists()
 
-    # XXX Check content
+    repo = git.Repo(search_parent_directories=True)
+    commit_number = str(sum(1 for _ in repo.iter_commits()))
+    commit_sha1 = repo.head.object.hexsha
+
+    expected_metadata=f"""[general]
+name = QGIS Plugin CI Testing
+qgisMinimumVersion = 3.2
+description = This is a testing plugin for QGIS Plugin CI
+about = Downloading would be useless
+version = {release_version}
+author = David Marteau
+email = david@3liz.com
+tags = foo,bar,baz
+tracker = https://github.com/3liz/qgis-plugin-package-ci/issues
+homepage = https://github.com/3liz/qgis-plugin-package-ci
+repository = https://github.com/3liz/qgis-plugin-package-ci
+category = plugins
+experimental = False
+icon = icons/opengisch.png
+commitNumber = {commit_number}
+commitSha1 = {commit_sha1}
+dateTime = {datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+"""
+ 
+    # Check content
+    with ZipFile(pkg, "r") as zf:
+        with zf.open('qgis_plugin_ci_testing/metadata.txt') as md:
+            metadata = md.read().decode()
+            assert metadata.strip("\n") == expected_metadata.strip("\n")
+
+    
