@@ -1,4 +1,3 @@
-
 from contextlib import chdir
 from pathlib import Path
 
@@ -19,9 +18,10 @@ def test_cli_release(fixtures: Path):
                 "-vv",
                 "release",
                 "latest",
-                "--github-token", "foo",
-                "--osgeo-username", "bar",
-                "--osgeo-password", "baz",
+                "--osgeo-username",
+                "bar",
+                "--osgeo-password",
+                "baz",
                 "--dry-run",
             ],
         )
@@ -40,7 +40,8 @@ def test_cli_package(fixtures: Path):
                 "-vv",
                 "package",
                 "latest",
-                "--plugin-repo-url", "https://packages.3liz.org/pub/test-plugin",
+                "--plugin-repo-url",
+                "https://packages.3liz.org/pub/test-plugin",
                 "--dry-run",
             ],
         )
