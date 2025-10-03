@@ -52,31 +52,25 @@ def upload_github_release(
             #
             # Push the local xml to the github repository
             #
-            if dry_run:
-                logger.notice(f"Not uploading {xml} because it is a dry run.")
-            else:
-                logger.info("Uploading  %s", xml)
-                upload_github_asset(
-                    parameters,
-                    asset_path=xml,
-                    tag_ref=tag_ref,
-                    github_token=github_token,
-                    asset_name="plugins.xml",
-                )
+            upload_github_asset(
+                parameters,
+                asset_path=xml,
+                tag_ref=tag_ref,
+                github_token=github_token,
+                asset_name="plugins.xml",
+                dry_run=dry_run,
+            )
     #
     # Upload the plugin archive to github
     #
     if github_token is not None:
-        if dry_run:
-            logger.notice(f"Not uploading {archive_path} to github because it is a dry run.")
-        else:
-            logger.info("Uploading %s", archive_path)
-            upload_github_asset(
-                parameters,
-                asset_path=archive_path,
-                tag_ref=tag_ref,
-                github_token=github_token,
-            )
+        upload_github_asset(
+            parameters,
+            asset_path=archive_path,
+            tag_ref=tag_ref,
+            github_token=github_token,
+            dry_run=dry_run,
+        )
 
 
 #

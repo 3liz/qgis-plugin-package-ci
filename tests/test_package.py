@@ -50,7 +50,7 @@ def test_package_create(rootdir: Path, fixtures: Path):
     commit_number = str(sum(1 for _ in repo.iter_commits()))
     commit_sha1 = repo.head.object.hexsha
 
-    expected_metadata=f"""[general]
+    expected_metadata = f"""[general]
 name = QGIS Plugin CI Testing
 qgisMinimumVersion = 3.2
 description = This is a testing plugin for QGIS Plugin CI
@@ -69,11 +69,9 @@ commitNumber = {commit_number}
 commitSha1 = {commit_sha1}
 dateTime = {datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
 """
- 
+
     # Check content
     with ZipFile(pkg, "r") as zf:
-        with zf.open('qgis_plugin_ci_testing/metadata.txt') as md:
+        with zf.open("qgis_plugin_ci_testing/metadata.txt") as md:
             metadata = md.read().decode()
             assert metadata.strip("\n") == expected_metadata.strip("\n")
-
-    
