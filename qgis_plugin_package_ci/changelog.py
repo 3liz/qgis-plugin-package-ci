@@ -74,7 +74,7 @@ class ChangeLog:
 
             text = version.text
             if text:
-                output += "\n".join(item for item in text.split("\n") if item)
+                output += text
             output += "\n\n"
             so_far += 1
             if so_far >= count:

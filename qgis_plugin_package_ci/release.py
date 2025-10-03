@@ -16,46 +16,18 @@ from .package import create_archive
 from .parameters import Parameters
 
 
-def release(
+def upload_github_release(
     parameters: Parameters,
+    release_version: semver.Version,
+    archive_path: Path,
     *,
-    release_version: Optional[semver.Version] = None,
     github_token: Optional[str] = None,
     tag_ref: Optional[str] = None,
     osgeo_username: Optional[str] = None,
     create_plugin_repository: bool = False,
     repository_url: Optional[str] = None,
     dry_run: bool = False,
-) -> Path:
-    changelog = (
-        ChangeLog.parse(
-            parameters.changelog_path,
-        )
-        if parameters.changelog_path.exists()
-        else None
-    )
-
-    if not changelog:
-        logger.warning("No changelog found")
-
-    if not release_version and changelog:
-        # Get the latest version
-        latest = changelog.latest
-        if latest:
-            release_version = semver.Version.parse(latest.version)
-
-    if not release_version:
-        raise VersionNotFoundError()
-
-    archive_path = create_archive(
-        parameters,
-        release_version=release_version,
-        archive_dest=parameters.rootdir,
-        archive_name=f"{parameters.plugin_slug}.{release_version}",
-        experimental=release_version.prerelease is not None,
-        changelog=changelog,
-    )
-
+):
     if not tag_ref:
         # Assume that the release verison is the git ref (tag)
         tag_ref = str(release_version)
@@ -106,7 +78,50 @@ def release(
                 github_token=github_token,
             )
 
-    return archive_path
+
+#
+# Create release package with optional release version
+#
+# If the version is nt set, take the latest if a changelog
+# is available
+#
+def create_release_package(
+    parameters: Parameters,
+    release_version: Optional[semver.Version] = None,
+) -> tuple[Path, semver.Version]:
+    #
+    # Create realease package
+    #
+    changelog = (
+        ChangeLog.parse(
+            parameters.changelog_path,
+        )
+        if parameters.changelog_path.exists()
+        else None
+    )
+
+    if not changelog:
+        logger.warning("No changelog found")
+
+    if not release_version and changelog:
+        # Get the latest version
+        latest = changelog.latest
+        if latest:
+            release_version = semver.Version.parse(latest.version)
+
+    if not release_version:
+        raise VersionNotFoundError()
+
+    archive_path = create_archive(
+        parameters,
+        release_version=release_version,
+        archive_dest=parameters.rootdir,
+        archive_name=f"{parameters.plugin_slug}.{release_version}",
+        experimental=release_version.prerelease is not None,
+        changelog=changelog,
+    )
+
+    return (archive_path, release_version)
 
 
 #

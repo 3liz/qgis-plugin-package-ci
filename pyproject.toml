@@ -38,7 +38,7 @@ dependencies = [
 ]
 
 [project.scripts]
-qgis-plugin-ci = "qgis_plugin_package_ci.__main__:main"
+qgis-plugin-ci = "qgis_plugin_package_ci.main:main"
 
 [project.urls]
 homepage = "https://github.com/3liz/qgis-plugin-package-ci"

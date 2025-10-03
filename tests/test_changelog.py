@@ -36,7 +36,7 @@ Version 10.0.1:
 - End of year version
 
 """
-    assert expected == text
+    assert text == expected
 
     found = chlog.find("10.0.1")
     assert found is not None
