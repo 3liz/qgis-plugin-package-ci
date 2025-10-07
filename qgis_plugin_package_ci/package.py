@@ -62,6 +62,9 @@ def create_archive(
         # Add licence file
         _copy_license_file(repo, source)
 
+        # Copy i18 n files
+        _copy_i18n_files(parameters.plugin_path, source)
+
         if changelog and not changelog.empty:
             changes = changelog.format_last_items(parameters.changelog_max_entries)
             logger.info("Added changelog")
@@ -87,6 +90,17 @@ def create_archive(
         )
 
         return Path(package)
+
+
+def _copy_i18n_files(plugin_path: Path, source: Path):
+    src = plugin_path.joinpath("i18n")
+    dst = source.joinpath("i18n")
+    if src.is_dir() and not dst.exists():
+        logger.info("Copying i18n files")
+        dst.mkdir()
+        for file in src.glob("*.qm"):
+            logger.debug("= Copying %s", file.name)
+            shutil.copy(file, dst.joinpath(file.name))
 
 
 def _copy_license_file(repo: git.Repo, source: Path):
