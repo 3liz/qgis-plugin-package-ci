@@ -120,7 +120,7 @@ def make_release(
     osgeo_password: Optional[str],
     dry_run: bool,
 ):
-    """Create plugin archive
+    """Release plugin
 
     If git tag is not specified then it will use the release_version.
     The tag ref is required for uploading assets to the github release

@@ -107,8 +107,7 @@ class ChangeLog:
 
     @classmethod
     def parse(cls, changelog_path: Path) -> Self:
-        with changelog_path.open(mode="r", encoding="UTF8") as f:
-            content = f.read()
+        content = changelog_path.read_text()
 
         versions = re.findall(pattern=CHANGELOG_REGEXP, string=content, flags=re.MULTILINE | re.DOTALL)
 
