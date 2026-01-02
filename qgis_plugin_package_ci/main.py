@@ -129,6 +129,9 @@ def make_release(
     from .release import create_release_package, upload_github_release
     from .upload import upload_plugin
 
+    if dry_run:
+        click.echo(click.style("Running in dry-run mode", fg="yellow"))
+
     parameters = load_parameters()
     plugin_archive, version = create_release_package(
         parameters,
