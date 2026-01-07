@@ -21,6 +21,7 @@ from pydantic import (
     Field,
     HttpUrl,
     PositiveInt,
+    PrivateAttr,
 )
 from slugify import slugify
 
@@ -37,6 +38,7 @@ def _parse_str_sequence(value: Sequence[str] | str) -> Sequence[str]:
 class PluginMetadata(BaseModel):
     name: str
     author: str = ""
+    email: str = ""
     description: str = ""
     qgis_minimum_version: str = Field(alias="qgisMinimumVersion")
     qgis_maximum_version: Optional[str] = Field(None, alias="qgisMaximumVersion")
@@ -59,6 +61,64 @@ class PluginMetadata(BaseModel):
         config.optionxform = str  # type: ignore [assignment]
         config.read(path.joinpath("metadata.txt"))
         return cls.model_validate({k: v for (k, v) in config["general"].items()})
+
+
+class Author(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+
+
+class ProjectMetadata(BaseModel):
+    """Metadata defined in pyproject.toml"""
+
+    homepage: Optional[HttpUrl] = None
+    tracker: Optional[HttpUrl] = None
+    repository: Optional[HttpUrl] = None
+    author: Optional[str] = None
+    email: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[Sequence[str]] = None
+
+    @staticmethod
+    def from_project_data(project: dict) -> "ProjectMetadata":
+        match project.get("authors"):
+            case list(authors):
+                author = Author.model_validate(authors[0])
+            case _:
+                author = Author()
+
+        return ProjectMetadata.model_validate(
+            {
+                "homepage": project.get("urls", {}).get("homepage"),
+                "tracker": project.get("urls", {}).get("tracker"),
+                "repository": project.get("urls", {}).get("repository"),
+                "author": author.name,
+                "email": author.email,
+                "tags": project.get("kewords"),
+                "description": project.get("description"),
+            }
+        )
+
+    @staticmethod
+    def from_project(rootdir: Path) -> "ProjectMetadata":
+        path = rootdir.joinpath("pyproject.toml")
+        if path.exists():
+            with path.open("rb") as fh:
+                config = tomllib.load(fh)
+                return ProjectMetadata.from_project_data(config.get("project", {}))
+
+        return ProjectMetadata()
+
+    def update_plugin_metadata(self, md: PluginMetadata) -> PluginMetadata:
+        """Update undefined properties un plugin metadadata with
+        their corresponding values found in project metadata
+        """
+        project_meta = self.model_dump(exclude_defaults=True)
+        if project_meta:
+            update = {k: project_meta[k] for (k, v) in md.model_dump().items() if k in project_meta and not v}
+            return md.model_copy(update=update)
+
+        return md
 
 
 class Parameters(BaseModel, extra="forbid"):
@@ -115,6 +175,9 @@ class Parameters(BaseModel, extra="forbid"):
         description="Server endpoint for uploading plugin",
     )
 
+    #
+    _metadata: ProjectMetadata = PrivateAttr(default=ProjectMetadata())
+
     @cached_property
     def plugin_path(self) -> Path:
         return self.rootdir.joinpath(self.plugin_source)
@@ -129,7 +192,9 @@ class Parameters(BaseModel, extra="forbid"):
 
     @cached_property
     def metadata(self) -> PluginMetadata:
-        return PluginMetadata.read(self.plugin_path)
+        md = PluginMetadata.read(self.plugin_path)
+        # Update undefined properties
+        return self._metadata.update_plugin_metadata(md)
 
 
 def find_config_file(rootdir: Path) -> Optional[Path]:
@@ -153,6 +218,7 @@ def read_config_from_file(path: Path) -> dict:
         logger.debug("== Read config from %s", path)
         if path.stem == "pyproject":
             config = config.get("tool", {})
+
         return config.get("package-ci", {})
 
 
@@ -163,4 +229,6 @@ def load_parameters(rootdir: Optional[Path] = None) -> Parameters:
     config = read_config_from_file(path) if path else {}
     config.update(rootdir=rootdir)
 
-    return Parameters.model_validate(config)
+    params = Parameters.model_validate(config)
+    params._metadata = ProjectMetadata.from_project(rootdir)
+    return params

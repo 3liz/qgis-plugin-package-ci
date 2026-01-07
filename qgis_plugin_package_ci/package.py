@@ -51,7 +51,17 @@ def create_archive(
         config.optionxform = str  # type: ignore [assignment]
         config.read(metadata)
 
+        print("================", metadata, dict(config["general"].items()))
+
         date_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        config.set("general", "description", parameters.metadata.description)
+        config.set("general", "author", parameters.metadata.author)
+        config.set("general", "email", parameters.metadata.email)
+        config.set("general", "tags", ",".join(parameters.metadata.tags))
+        config.set("general", "homepage", str(parameters.metadata.homepage))
+        config.set("general", "repository", str(parameters.metadata.repository))
+        config.set("general", "tracker", str(parameters.metadata.tracker))
 
         config.set("general", "version", str(release_version))
         config.set("general", "commitNumber", str(sum(1 for _ in repo.iter_commits())))
