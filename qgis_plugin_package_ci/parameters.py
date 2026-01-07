@@ -94,7 +94,7 @@ class ProjectMetadata(BaseModel):
                 "repository": project.get("urls", {}).get("repository"),
                 "author": author.name,
                 "email": author.email,
-                "tags": project.get("kewords"),
+                "tags": project.get("keywords"),
                 "description": project.get("description"),
             }
         )
