@@ -37,12 +37,12 @@ class VersionNote(NamedTuple):
     def version(self) -> str:
         if self.prerelease:
             return f"{self.major}.{self.minor}.{self.patch}-{self.prerelease}"
-        else:
-            return f"{self.major}.{self.minor}.{self.patch}"
+
+        return f"{self.major}.{self.minor}.{self.patch}"
 
 
 # see: https://regex101.com/r/8JROUv/1
-CHANGELOG_REGEXP = r"(?<=##)\s*\[*(v?0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\]?(\(.*\))?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]*\s-\s*([\d\-/]{10})(.*?)(?=##|\Z)"
+CHANGELOG_REGEXP = r"(?<=##)\s*\[*(v?0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\]?(\(.*\))?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\]*\s-\s*([\d\-/]{10})(.*?)(?=##|\Z)" # noqa E501
 
 
 class ChangeLog:
@@ -66,9 +66,8 @@ class ChangeLog:
             return ""
 
         output = "\n"
-        so_far = 0
 
-        for ver in self._versions:
+        for so_far, ver in enumerate(self._versions):
             version = VersionNote(*ver)
             output += f"Version {version.version}:\n"
 
@@ -76,8 +75,7 @@ class ChangeLog:
             if text:
                 output += text
             output += "\n\n"
-            so_far += 1
-            if so_far >= count:
+            if so_far + 1 >= count:
                 break
 
         return output

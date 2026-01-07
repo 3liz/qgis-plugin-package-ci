@@ -60,7 +60,7 @@ class PluginMetadata(BaseModel):
         config = ConfigParser()
         config.optionxform = str  # type: ignore [assignment]
         config.read(path.joinpath("metadata.txt"))
-        return cls.model_validate({k: v for (k, v) in config["general"].items()})
+        return cls.model_validate(dict(config["general"].items()))
 
 
 class Author(BaseModel):
