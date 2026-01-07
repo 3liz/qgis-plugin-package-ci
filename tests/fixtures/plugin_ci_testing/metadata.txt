@@ -2,19 +2,23 @@
 [general]
 name=QGIS Plugin CI Testing
 qgisMinimumVersion=3.2
-description=This is a testing plugin for QGIS Plugin CI
+#description=This is a testing plugin for QGIS Plugin CI
+
 about=Downloading would be useless
 version=dev
-author=David Marteau
-email=david@3liz.com
+
+#author=David Marteau
+#email=david@3liz.com
+
 changelog=changelog
 
 # Tags are comma separated with spaces allowed
 tags=foo,bar,baz
 
-tracker=https://github.com/3liz/qgis-plugin-package-ci/issues
-homepage=https://github.com/3liz/qgis-plugin-package-ci
-repository=https://github.com/3liz/qgis-plugin-package-ci
+# Set from pyproject.toml urls
+#tracker=
+#homepage=
+#repository=
 
 category=plugins
 

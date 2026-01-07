@@ -1,3 +1,16 @@
+[project]
+name = "my-plugin"
+description = "This is a testing plugin for QGIS Plugin CI"
+authors = [
+    { name = "David Marteau", email = "david@3liz.com" },
+]
+
+[project.urls]
+tracker = "https://github.com/3liz/qgis-plugin-package-ci/issues"
+homepage = "https://github.com/3liz/qgis-plugin-package-ci"
+repository = "https://github.com/3liz/qgis-plugin-package-ci"
+
+
 [tool.package-ci]
 plugin_source = "plugin_ci_testing"
 github_organization_slug = "3liz"

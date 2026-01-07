@@ -53,18 +53,18 @@ def test_package_create(rootdir: Path, fixtures: Path):
     expected_metadata = f"""[general]
 name = QGIS Plugin CI Testing
 qgisMinimumVersion = 3.2
-description = This is a testing plugin for QGIS Plugin CI
 about = Downloading would be useless
 version = {release_version}
-author = David Marteau
-email = david@3liz.com
 tags = foo,bar,baz
-tracker = https://github.com/3liz/qgis-plugin-package-ci/issues
-homepage = https://github.com/3liz/qgis-plugin-package-ci
-repository = https://github.com/3liz/qgis-plugin-package-ci
 category = plugins
 experimental = False
 icon = icons/opengisch.png
+description = This is a testing plugin for QGIS Plugin CI
+author = David Marteau
+email = david@3liz.com
+homepage = https://github.com/3liz/qgis-plugin-package-ci
+repository = https://github.com/3liz/qgis-plugin-package-ci
+tracker = https://github.com/3liz/qgis-plugin-package-ci/issues
 commitNumber = {commit_number}
 commitSha1 = {commit_sha1}
 dateTime = {datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
@@ -74,4 +74,5 @@ dateTime = {datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
     with ZipFile(pkg, "r") as zf:
         with zf.open("qgis_plugin_ci_testing/metadata.txt") as md:
             metadata = md.read().decode()
+            print("====================", metadata)
             assert metadata.strip("\n") == expected_metadata.strip("\n")
