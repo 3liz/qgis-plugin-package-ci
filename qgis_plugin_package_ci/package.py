@@ -51,8 +51,6 @@ def create_archive(
         config.optionxform = str  # type: ignore [assignment]
         config.read(metadata)
 
-        print("================", metadata, dict(config["general"].items()))
-
         date_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         config.set("general", "description", parameters.metadata.description)

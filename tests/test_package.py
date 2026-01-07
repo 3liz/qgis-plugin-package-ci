@@ -71,8 +71,7 @@ dateTime = {datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
 """
 
     # Check content
-    with ZipFile(pkg, "r") as zf:
-        with zf.open("qgis_plugin_ci_testing/metadata.txt") as md:
-            metadata = md.read().decode()
-            print("====================", metadata)
-            assert metadata.strip("\n") == expected_metadata.strip("\n")
+    with ZipFile(pkg, "r") as zf, zf.open("qgis_plugin_ci_testing/metadata.txt") as md:
+        metadata = md.read().decode()
+        print("====================", metadata)
+        assert metadata.strip("\n") == expected_metadata.strip("\n")
