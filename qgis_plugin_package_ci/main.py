@@ -31,6 +31,45 @@ def cli(verbose: int):
 
 
 #
+# Meta
+#
+@cli.command("meta")
+@click.argument("name", default="")
+@click.option("--raw", "-r", is_flag=True, help="Output strings without escapes an quotes")
+def get_meta(name: str, raw: bool):
+    """ Return project metadata 
+
+        If NAME is not specified, the metadatas are returned 
+        as json. Otherwise only the property <NAME> is returned.
+    """
+    import json
+    import tomllib
+
+    from pathlib import Path
+
+    from .parameters import load_parameters
+    parameters = load_parameters()
+
+    metadata = parameters.metadata.model_dump(mode="json")
+
+    path = Path("./pyproject.toml")
+    if path.exists():
+        with path.open("rb") as fh:
+            if project := tomllib.load(fh).get("project"):
+                project.update(metadata)
+                metadata = project
+
+    if not name:
+        click.echo(json.dumps(metadata, indent=4))
+    else:
+        value = metadata.get(name)
+        if raw and isinstance(value, str):
+            click.echo(value)
+        else:
+            click.echo(json.dumps(value, indent=4))
+
+
+#
 # Changelog
 #
 class NoChangeLog(Exception):
