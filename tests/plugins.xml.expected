@@ -1,0 +1,22 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<plugins>
+    <pyqgis_plugin name="QGIS Plugin CI Testing" version="10.1.0-beta1">
+        <description><![CDATA[This is a testing plugin for QGIS Plugin CI]]></description>
+        <version>10.1.0-beta1</version>
+        <qgis_minimum_version>3.2</qgis_minimum_version>
+        <qgis_maximum_version>3.99</qgis_maximum_version>
+        <homepage>https://github.com/3liz/qgis-plugin-package-ci</homepage>
+        <file_name>qgis_plugin_ci_testing.10.1.0-beta1.zip</file_name>
+        <icon>icons/opengisch.png</icon>
+        <author_name>David Marteau</author_name>
+        <download_url>https://packages.3liz.org/pub/qgis_plugin_ci_testing/qgis_plugin_ci_testing.10.1.0-beta1.zip</download_url>
+        <uploaded_by>David Marteau</uploaded_by>
+        <create_date>1985-07-21</create_date>
+        <update_date>__TODAY__</update_date>
+        <experimental>True</experimental>
+        <deprecated>False</deprecated>
+        <tracker>https://github.com/3liz/qgis-plugin-package-ci/issues</tracker>
+        <repository>https://github.com/3liz/qgis-plugin-package-ci</repository>
+        <tags>foo,bar,baz</tags>
+    </pyqgis_plugin>
+</plugins>

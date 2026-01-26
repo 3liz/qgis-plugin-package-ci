@@ -15,18 +15,16 @@ __pycache__/
 *.tar
 *.zip
 
-qgis_plugin_CI_testing/i18n
-qgis_plugin_CI_testing/resources_rc.py
-
 .tokens
 
 .idea
 .DS_Store
 .venv
 .vscode/settings.json
-dev_precommit_black.log
 
 htmlcov
 junit
 .coverage
 coverage.xml
+
+.localconfig.mk
